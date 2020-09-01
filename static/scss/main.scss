@@ -1,0 +1,353 @@
+@import './variables';
+@import './resets';
+
+@mixin card(){
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+@mixin flexRow(){
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+@mixin flexColumn(){
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+@mixin columnGrid(){
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+}
+
+@mixin columnGridSmall(){
+    display: grid;
+    grid-template-columns: auto 1fr;
+}
+
+@mixin columnGridSmall2(){
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+
+@mixin rowGrid(){
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+@mixin infoSpacing(){
+    padding: $info_padding;
+    margin: $info_padding;
+    margin-bottom: 0;
+}
+
+@mixin buttonHover(){
+    transition-duration: 0.1s;
+    color: darken($navbutton_color, 30%);
+    background-color: lighten($navbutton_color, 10%);
+}
+
+@mixin navButtonHover(){
+    transition-duration: 0.1s;
+    background: linear-gradient(145deg, #383e44, #2f343a);
+box-shadow:  1px 1px 2px #22262a, 
+             -1px -1px 2px #464e56;
+}
+
+@mixin navButtonActive(){
+    background: linear-gradient(145deg, #2f343a, #383e44);
+    box-shadow:  1px 1px 2px #2d3238, 
+             -1px -1px 2px #3b4248;
+}
+
+@mixin navButtonDisable(){
+    color: darken($secondary_color, 50%);
+    background: #343a40;
+    box-shadow: inset 1px 1px 2px #2d3238, 
+            inset -1px -1px 2px #3b4248;
+}
+
+@mixin navButtonLooks(){
+    background-color: $navbar_color;
+    box-shadow:  1px 1px 2px #252a2e, 
+             -1px -1px 2px #434a52;
+    color: $secondary_color;
+}
+
+@mixin cardHover(){
+    background-color: darken($card_white_bg, 10%);
+}
+
+.navbar{
+    @include flexRow;
+    align-items: center;
+    background-color: $navbar_color;
+    color: $secondary_color;
+    padding-left: $main_padding;
+    padding-right: $main_padding;
+    position: relative;
+
+    select{
+        border: none;
+        background-color: $navbar_color;
+        color: $secondary_color;
+    }
+
+    button{
+        @include navButtonLooks();
+        font-size: 1rem;
+        margin-top: 5px;
+        margin-bottom: 5px;
+
+        &:hover{
+            @include navButtonHover;
+        }
+        &:disabled{
+            @include navButtonDisable();
+        }
+        &:active{
+            @include navButtonActive();
+        }
+    }
+
+    #startButton{
+        font-size: 1.2rem;
+        padding-left: $info_padding;
+        padding-right: $info_padding;
+        margin-right: $info_padding;
+    }
+
+    .userid{
+        position: absolute;
+        right: 2em;
+    }
+
+    #{&}_points{
+        @include flexRow;
+        align-items: center;
+    }
+}
+.mainArea{
+    @include flexRow;
+    justify-content: flex-start;
+    padding: $main_padding;
+    background-color: $main-color;
+
+    #cards{
+        margin-left: $main_padding;
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .box{
+        border-radius: 1rem;
+        display: flex;
+    }
+}
+#yourCards{
+    @include flexRow;
+    position: relative;
+    padding: $main_padding;
+    background-color: $main-color;
+
+    h2{
+        color: white;
+        z-index: 10001;
+    }
+    #blocker{
+        z-index: 10000; 
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        background-color: rgba(0,0,0,0.5); 
+        display: flex; 
+        justify-content: center; 
+        align-items: center;
+    }
+}
+.info{
+    @include columnGrid;
+    background-color: $secondary_color;
+
+    .title{
+        font-size: 1.4rem;
+    }
+
+    #{&}_score{
+        @include infoSpacing;
+        @include rowGrid;
+        background-color: $info_color;
+
+        .playerScore{
+            @include flexRow;
+        }
+    }
+    #{&}_chat{
+        @include infoSpacing;
+        @include rowGrid;
+        background-color: $info_color;
+
+        button{
+            background-color: $navbar_color;
+            color: $secondary_color;
+            padding: 5px;
+            padding-left: $info_padding;
+            padding-right: $info_padding;
+
+            &:hover{
+                @include buttonHover;
+            }
+        }
+        #chatLog{
+            max-height: 28vh;
+            display: flex;
+            overflow: scroll;
+            flex-direction: column;
+            scroll-behavior: smooth;
+            align-items: flex-start;
+        }
+        #chatLog::-webkit-scrollbar {
+            display: none;
+          }
+          /* Hide scrollbar for IE, Edge and Firefox */
+        #chatLog{
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        &_input{
+
+        }
+    }
+    #{&}_actions{
+        @include infoSpacing;
+        @include flexColumn; 
+        max-width: 35vw;
+        background-color: $info_color;   
+
+        &_action{
+            @include columnGridSmall;
+            div{
+                padding: 5px;
+                font-size: 0.9rem;
+            }
+            button{
+                background-color: $navbar_color;
+                color: $secondary_color;
+                padding: $info_padding;
+
+                &:hover{
+                    @include buttonHover;
+                }
+            }
+        }
+
+        .contact{
+            margin: auto;
+        }
+    
+        .contactImage{
+            margin: 5px;
+            padding: 5px;
+            max-width: $contact_size;
+            max-height: $contact_size;
+            border-radius: $contact-size;
+        
+            &:hover{
+                background-color: $hover_color;
+                transition-duration: 0.2s;
+            }
+        }
+    }
+
+}
+
+.card{
+    border-radius: 0.5em;
+    min-height: $card_width*1.2;
+    width: $card-width;
+    padding: $card_margin*5;
+    margin: $card_margin;
+    background-color: $card_white_bg;
+    color: $card_white_text;
+    font-size: $card_font_size;
+    @include card;
+
+    &:hover{
+        @include cardHover();
+    }
+}
+.biggerCard{
+    border-radius: 1em;
+    height: $card_width_big*1.2;
+    width: $card_width_big;
+    padding: $card_margin_big*5;
+    margin: $card_margin_big;
+    background-color: $card_white_bg;
+    color: $card_white_text;
+    font-size: $card_font_size*1.25;
+    font-weight: 700;
+    @include card;
+
+    &:hover{
+        @include cardHover();
+    }
+}
+.blackCard{
+    background-color: $card_black_bg;
+    color: $card_black_text;
+    border-style: solid;
+    border-width: 2px;
+    border-color: $card_black_text;
+    line-height: 1.2;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI";
+
+    &:hover{
+        background-color: $card_black_bg;
+    }
+}
+select, input{
+    padding: 5px;
+}
+
+@media(max-width: 1280px){
+    .navbar{
+        justify-content: center;
+        .userid{
+            display: none;
+        }
+        #startButton{
+            width: 100%;
+            margin: 5px;
+        }
+    }
+    .mainArea{
+      justify-content: center;
+      align-items: center;
+
+      #cards{
+            margin-left: 0;
+            margin-right: 0;
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+    .info{
+        @include flexRow;
+        #{&}_actions{
+            max-width: 100%;
+        }
+    }
+    #yourCards{
+        justify-content: center;
+    }
+    .card{
+        width: $card_width_smol;
+        min-height: $card_width_smol*1.2;
+    }
+  }
+  
