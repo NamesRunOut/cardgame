@@ -40,16 +40,13 @@ function startGame(){
 }
 
 function tzarPicked(cardid){
-  //let cardid = document.getElementById("tzar").value;
   socket.emit('tzarPicked', cardid);
 }
 
 function cardCommited(cardid, cardSauceid){
-  //let cardid = document.getElementById("card").value;
   if (!acceptCards) return;
   if (blackType==0) acceptCards=false;
   for (let i in whiteCards){
-  //  console.log(cardid, whiteCards[i].card.matchid)
     if (cardid==whiteCards[i].card.matchid) whiteCards.splice(i, 1);
   }
   socket.emit('cardCommited', cardid, cardSauceid);
@@ -98,11 +95,9 @@ socket.on('startEnable', function() {
   document.getElementById("startButton").disabled=false;
 });
 socket.on('message', function(message) {
-  //console.log(message.author, message.sauce);
   displayMessage(message);
 });
 socket.on('privateMessage', function(id, message) {
-  //console.log(message.author, message.sauce);
   if (id!=socketid) return;
   displayMessage(message);
 });
@@ -128,8 +123,6 @@ socket.on('playedCards', function(playedCards, type) {
   let node = document.getElementById('cards');
   node.innerHTML = "";
 
-  //console.log(type);
-
   if (type==0){
       for (let id in playedCards){
         let msg = document.createElement("div");
@@ -148,7 +141,6 @@ socket.on('playedCards', function(playedCards, type) {
         let boxid = 0;
         let box;
         for (let id=0;id<allCards.length;id++){
-        //console.log(allCards[id].player, allCards[id])
             if(id==0 || allCards[id].player!=allCards[id-1].player){
                  box = document.createElement("div");
                  box.className="box";
@@ -176,7 +168,6 @@ socket.on('playedCardsHidden', function() {
     document.getElementById("cards").appendChild(msg);
 });
 socket.on('tzarTurn', function(tzar) {
-       //console.log(tzar.id, socketid)
        let info = document.createElement("h2");
        if (tzar.id==socketid) {
            // you are the tzar
@@ -212,15 +203,6 @@ socket.on('cardPodiumAndPoints', function() {
 });
 socket.on('recieveWhite', function(id, card, cardSauce) {
   if (socketid!=id) return;
-  //console.log("WHITE RECIEVED", card, card.cardid, card.matchid)
-  if(card.cardid==344) {
-    let message = {
-      date: '',
-      author: "Customowa karta",
-      sauce: '<div class="info_chat_input"><input id="customInput" placeholder="Tu wpisz tekst" aria-label="Tu wpisz tekst"><button type="button" onclick="writeCustom()">Send</button></div>'
-    }
-    displayMessage(message);
-  }
   whiteCards.push({
     card: card,
     sauce: cardSauce
@@ -236,7 +218,6 @@ socket.on('recieveWhite', function(id, card, cardSauce) {
 });
 socket.on('deleteWhite', function(id){
   if(socketid!=id) return;
-  //console.log(socketid, id);
   let node = document.getElementById('yourCards');
   node.innerHTML = "";
   whiteCards.splice(0, whiteCards.length);
@@ -260,7 +241,7 @@ socket.on('blackCard', function(card) {
 socket.on('highlightCard', function(cardid, players){
   let node = document.getElementById('cards');
   node.innerHTML = "";
-//console.log(cardid);
+
   for (let id in allCards){
     let msg = document.createElement("div");
     msg.className="biggerCard";
@@ -309,7 +290,6 @@ function writeMessage(){
   }
   socket.emit('message', input);
   document.getElementById("chatInput").value="";
-  //displayMessage(input);
 }
 
 function displayMessage(message){
@@ -317,15 +297,12 @@ function displayMessage(message){
   msg.innerHTML = message.date+" "+message.author+": "+message.sauce;
   document.getElementById("chatLog").appendChild(msg);
   updateScroll();
-  //console.log(input);
 }
 
 function insertionSort(inputArr) {
     let n = inputArr.length;
         for (let i = 1; i < n; i++) {
-            // Choosing the first element in our unsorted subarray
             let current = inputArr[i];
-            // The last element of our sorted subarray
             let j = i-1;
             while ((j > -1) && (current.player < inputArr[j].player)) {
                 inputArr[j+1] = inputArr[j];

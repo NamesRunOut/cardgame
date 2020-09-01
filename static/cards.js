@@ -1,3 +1,12 @@
+// white cards:
+// type 0 - text
+// type 1 - image
+
+// black cards:
+// type 0 - pick 1 card
+// type 2 - pick 2 cards
+// type 3 - pick 3 cards
+
 const white = [
 {
      id: 0,

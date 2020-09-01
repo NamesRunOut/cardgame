@@ -1,4 +1,4 @@
-// Dependencies.
+// Dependencies
 var express = require('express');
 var http = require('http');
 var path = require('path');
@@ -22,11 +22,6 @@ app.get('/', function(request, response) {
 server.listen(port, function() {
   console.log('Starting server on port '+port);
 });
-/*
-const io = require('socket.io')();
-const port = 3000;
-io.listen(port);
-console.log('listening on port ', port);*/
 
 var players = {};
 var playerList = [];
@@ -58,23 +53,10 @@ var customCard = "";
 
 var mostpickedcards = [];
 
-//import { fetchWhite, fetchBlack } from './cards.mjs';
-
-// TODO multi-choice cards highlight fix
-// TODO events
-// TODO game softlocks when its tzar turn and someone leaves
-// TODO players not having enough cards sometimes?
-// TODO player can have 11 cards when rerolling hand after picking 1 card during multiple choice cards
-// TODO cards sets color coding
-
 io.on('connection', (client) => {
-  //console.log(cards.white[0]);
-  //unpack();
   client.on('disconnect', function() {
     for (let id in playerList) {
       if (playerList[id]==client.id) {
-        // swap tzar if leaver was tzar and check for round end if enough cards commited. If leaver comited, remove that commit
-        // scout cardsplayed and remove cardsplayed of that person
            for (let id2 in cardsPlayed){
                if (cardsPlayed[id2].player==client.id) {
                    cardsPlayed.splice(id2, 1);
@@ -104,8 +86,6 @@ io.on('connection', (client) => {
         }
         playerList.splice(id, 1);
         noPlayers--;
-        // TODO tzar cant pick if somebody leaves
-        // TODO Czarne jako obrazki
         if (noPlayers==cardsPlayed.length) acceptTzar=true;
         if (acceptTzar==true) {
             shufflePlayed();
@@ -214,18 +194,6 @@ io.on('connection', (client) => {
     io.sockets.emit('pointsToWin', winningPoints);
     io.sockets.emit('state', playerList, players);
   });
-  client.on('writeCustom', function(text){
-    cards.white[344].text = text;
-    let date = new Date();
-    let message = {
-    date: "["+String(date.getHours()).padStart(2,"0")+":"
-           +String(date.getMinutes()).padStart(2,"0")+":"
-           +String(date.getSeconds()).padStart(2,"0")+"]",
-    author: "server",
-    sauce: "Customowa karta ustawiona: "+text
-    }
-    io.sockets.emit('privateMessage', client.id, message);
-  });
   client.on('reroll', function(){
     if(players[client.id].reroll) return;
     if(players[client.id].tzar || acceptTzar) return;
@@ -306,9 +274,7 @@ io.on('connection', (client) => {
       // emit to client card disabling signal
       if (acceptCards==false || players[client.id].pick==false) return;
       players[client.id].amountPicked++;
-      //console.log(prevBlack.type);
       if (prevBlack.type==0){
-             //console.log("RECIEVE WHITE", client.id, whiteQueue[0]);
               players[client.id].played=true;
               players[client.id].pick=false;
               io.sockets.emit('playedCardsHidden');
@@ -368,14 +334,12 @@ io.on('connection', (client) => {
       }
   });
   client.on('tzarPicked', function(cardID) {
-      // emit to client card disabling signal
       if (acceptTzar==false || players[client.id].tzar==false) return;
       acceptTzar=false;
       for (let id in cardsPlayed) {
         if (cardsPlayed[id].matchid==cardID) {
           if (players[cardsPlayed[id].player]!=undefined) players[cardsPlayed[id].player].points++;
           mostpickedcards.push(cardsPlayed[id].card.id);
-          //console.log(mostpickedcards)
           io.sockets.emit('highlightCard', cardID, players);
           io.sockets.emit('state', playerList, players);
           let date = new Date();
@@ -406,7 +370,6 @@ io.on('connection', (client) => {
       setUpTurn();
   });
   client.on('start', function() {
-    // doesnt check if there is enough cards
       gameStarted = true;
       io.sockets.emit('pointsDisable');
       io.sockets.emit('playedCards', [], 0);
@@ -417,7 +380,6 @@ io.on('connection', (client) => {
       whitei=0;
       cardsPlayedi=0;
       blacki=0;
-      cards.white[344].text = 'Customowa karta - napisz w chacie na dole jaki ma mieć tekst i ją kliknij';
 
       for (let i=0;i<noPlayers;i++){
         shuffleBlack();
@@ -466,13 +428,10 @@ io.on('connection', (client) => {
       io.sockets.emit('blockTzar', players[playerList[tzarTag]].id);
       io.sockets.emit('startDisable');
       io.sockets.emit('startTurn');
-      //console.log(players, playerList);
-      //console.log(fetchBlack(0), fetchBlack(2), fetchBlack(5));
   });
   client.on('message', function(input) {
     console.log(input.date," ",input.author," : ", input.sauce);
     io.sockets.emit('message', input);
-    //console.log("|"+input.sauce+"|")
     if (input.sauce=="!stats") {
             let message = {
             date: "",
@@ -545,7 +504,6 @@ function shuffleWhite(){
       });
       nums.splice(j,1);
   }
-  //console.log(whiteQueue);
 }
 
 function shuffleBlack(){
@@ -604,9 +562,7 @@ function countCards(){
 function insertionSort(inputArr) {
     let n = inputArr.length;
         for (let i = 1; i < n; i++) {
-            // Choosing the first element in our unsorted subarray
             let current = inputArr[i];
-            // The last element of our sorted subarray
             let j = i-1;
             while ((j > -1) && (current.amount < inputArr[j].amount)) {
                 inputArr[j+1] = inputArr[j];
