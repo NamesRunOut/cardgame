@@ -57,6 +57,7 @@ io.on('connection', (client) => {
   client.on('disconnect', function() {
     for (let id in playerList) {
       if (playerList[id]==client.id) {
+           // remove commited cards of that person
            for (let id2 in cardsPlayed){
                if (cardsPlayed[id2].player==client.id) {
                    cardsPlayed.splice(id2, 1);
@@ -65,35 +66,42 @@ io.on('connection', (client) => {
            }
 
         if (players[playerList[id]].tzar==true) {
+        // appoint new tzar
             tzarTag++;
             if (tzarTag>=playerList.length) tzarTag=0;
             players[playerList[tzarTag]].tzar=true;
             players[playerList[tzarTag]].pick=false;
             players[playerList[tzarTag]].amountPicked=0;
-
+            if (acceptCards==true) io.sockets.emit('blockTzar', players[playerList[tzarTag]].id);
+        // remove played cards of new tzar
             for (let id2 in cardsPlayed){
                      if (cardsPlayed[id2].player==players[playerList[tzarTag]].id) {
                          cardsPlayed.splice(id2, 1);
                          cardsPlayedi--;
                      }
             }
-
-            if (acceptTzar==true) {
-                players[playerList[tzarTag]].pick=true;
-                io.sockets.emit('enableCards');
-                io.sockets.emit('tzarTurn', players[playerList[tzarTag]]);
-            }
+            emitEmptyWhite();
         }
-        playerList.splice(id, 1);
-        noPlayers--;
-        if (noPlayers==cardsPlayed.length) acceptTzar=true;
+        if ((noPlayers-1<=cardsPlayed.length && prevBlack.type==0) || ((prevBlack.type*(noPlayers-1))<=cardsPlayed.length && (prevBlack.type==2 || prevBlack.type==3))) {
+            acceptCards=false;
+            acceptTzar=true;
+        }
         if (acceptTzar==true) {
             shufflePlayed();
+            players[playerList[tzarTag]].pick=true;
             io.sockets.emit('playedCards', cardsPlayed, prevBlack.type);
             io.sockets.emit('enableCards');
             io.sockets.emit('tzarTurn', players[playerList[tzarTag]]);
         }
+
+        playerList.splice(id, 1);
+        noPlayers--;
+
+        tzarTag--;
+        if (tzarTag<0) tzarTag=playerList.length-1;
+
         io.sockets.emit('state', playerList, players);
+        break;
       }
     }
       let playername = "user";
@@ -104,14 +112,14 @@ io.on('connection', (client) => {
           +String(date.getMinutes()).padStart(2,"0")+":"
           +String(date.getSeconds()).padStart(2,"0")+"]",
           author: "server",
-          sauce: playername+"disconnected from the server "+"["+client.id+"]"
+          sauce: playername+" disconnected from the server "+"["+client.id+"]"
         }
         io.sockets.emit('message', input);
-    io.sockets.emit('state', playerList, players);
-    console.log('user disconnected', playerList);
-    if (noPlayers==0) {
-        gameStarted=false;
-    }
+        io.sockets.emit('state', playerList, players);
+        console.log('user disconnected', playerList);
+        if (noPlayers==0) {
+            gameStarted=false;
+        }
   });
   client.on('new player', function(nickname) {
     io.sockets.emit('sessionid', client.id);
@@ -140,33 +148,22 @@ io.on('connection', (client) => {
       sauce: "joins the lobby"
     }
     io.sockets.emit('message', input);
+    io.sockets.emit('state', playerList, players);
     if (gameStarted==true){
            for (let i=0;i<whitePerPerson;i++){
                 console.log("white sent: ", client.id, whiteQueue[0].matchid, cards.white[whiteQueue[0].cardid].text );
                 io.sockets.emit('recieveWhite', client.id, whiteQueue[0], cards.white[whiteQueue[0].cardid]);
                 whiteQueue.shift();
            }
-           io.sockets.emit('playedCards', [], 0);
-           if (prevBlack.type==0) {
-                      for (let i=0;i<cardsPlayed.length;i++){
-                           io.sockets.emit('playedCardsHidden');
-                      }
-           }
-           else if (prevBlack.type==2 || prevBlack.type==3){
-                        for (let i=0;i<cardsPlayed.length/prevBlack.type;i++){
-                            io.sockets.emit('playedCardsHidden');
-                        }
-           }
-
            io.sockets.emit('blackCard', prevBlack);
-           let message = {
-            date: '',
-            author: "Black card",
-            sauce: prevBlack.text
-            }
-           io.sockets.emit('message', message);
-           if (acceptCards==true) players[client.id].pick=true;
-           if (acceptTzar==true) io.sockets.emit('enableCards');
+           if (acceptCards==true) {
+               players[client.id].pick=true;
+               emitEmptyWhite();
+           }
+           if (acceptTzar==true) {
+                //io.sockets.emit('enableCards');
+                //io.sockets.emit('tzarTurn', players[playerList[tzarTag]]);
+           }
     }
     io.sockets.emit('state', playerList, players);
     for (var id in players) {
@@ -571,6 +568,20 @@ function insertionSort(inputArr) {
             inputArr[j+1] = current;
         }
     return inputArr;
+}
+
+function emitEmptyWhite(){
+                          io.sockets.emit('playedCards', [], 0);
+                           if (prevBlack.type==0) {
+                                      for (let i=0;i<cardsPlayed.length;i++){
+                                           io.sockets.emit('playedCardsHidden');
+                                      }
+                           }
+                           else if (prevBlack.type==2 || prevBlack.type==3){
+                                        for (let i=0;i<cardsPlayed.length/prevBlack.type;i++){
+                                            io.sockets.emit('playedCardsHidden');
+                                        }
+                           }
 }
 
 function unpack(){
